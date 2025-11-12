@@ -21,9 +21,26 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const login = async (email: string, password: string): Promise<boolean> => {
+  const loginApplicant = async (email: string, password: string): Promise<boolean> => {
     try {
-      const data = await authAPI.login({ email, password });
+      const data = await authAPI.loginApplicant({ email, password });
+      if (data) {
+        setUser(data);
+        console.log("Logged in user:", data);
+        return true;
+      } else {
+        alert("Invalid email or password");
+        return false;
+      }
+    } catch (error) {
+      console.error("Login failed:", error);
+      return false;
+    }
+  };
+
+  const loginRecruiter = async (email: string, password: string): Promise<boolean> => {
+    try {
+      const data = await authAPI.loginRecruiter({ email, password });
       if (data) {
         setUser(data);
         console.log("Logged in user:", data);
@@ -44,13 +61,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return user;
   };
 
-  const logout = () => {
+  const loginGoogle = async () => {
+    const user = await authAPI.loginGoogle();
+    if(user) setUser(user);
+    return user;
+  };
+
+  const logoutUser = () => {
     setUser(null);
     console.log("User logged out");
   };
 
   return (
-    <AuthContext.Provider value={{ user, registerApplicant, login, registerGoogle, logout }}>
+    <AuthContext.Provider value={{ user, registerApplicant, loginApplicant, loginRecruiter, registerGoogle, loginGoogle, logoutUser }}>
       {children}
     </AuthContext.Provider>
   );

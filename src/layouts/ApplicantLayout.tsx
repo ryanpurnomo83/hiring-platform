@@ -1,37 +1,74 @@
 // src/layouts/ApplicantLayout.tsx
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { useAuth } from "../context/useAuth";
 import { Link } from "react-router-dom";
+import { LogOut, User, Briefcase, Star } from "lucide-react";
 
 interface ApplicantLayoutProps {
   children: ReactNode;
 }
 
 export default function ApplicantLayout({ children }: ApplicantLayoutProps) {
-  const { user, logout } = useAuth();
+  const { user, logoutUser } = useAuth();
+  const [isHovering, setIsHovering] = useState(false);
+
+  const handleMouseEnter = () => setIsHovering(true);
+  const handleMouseLeave = () => setIsHovering(false);
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       {/* Header */}
-      <header className="bg-white text-black px-6 py-4 flex justify-between items-center">
+      <header className="border-b-1 bg-white text-black px-6 py-4 flex justify-between items-center">
         <h1 className="text-xl font-semibold">Applicant Dashboard</h1>
         <div className="flex items-center gap-4">
           <span>{user?.name}</span>
-          <button
-            onClick={logout}
-            className="bg-white text-blue-600 px-3 py-1 rounded hover:bg-gray-100"
-          >
-            Logout
-          </button>
+          <div
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+            className="w-10 h-10 rounded-full overflow-hidden border-1 border-blue-400 shadow-lg"
+            >
+            <img/>
+          </div>
+          
+          {isHovering && (
+              <div
+                className="absolute right-0 top-12 w-64 bg-white border border-gray-200 rounded-2xl shadow-xl p-4 z-50 transition-all duration-200"
+              >
+                <div className="flex items-center gap-3 mb-3">
+                  <User className="w-10 h-10 text-blue-500" />
+                  <div>
+                    <h2 className="font-semibold text-gray-800">{user?.name}</h2>
+                    <p className="text-sm text-gray-500">{user?.email}</p>
+                  </div>
+                </div>
+
+                <hr className="my-2" />
+
+                <div className="space-y-2">
+                  <Link
+                    to="/digital-career-persona"
+                    className="flex items-center gap-2 text-gray-700 hover:text-blue-600 transition-colors"
+                  >
+                    <Briefcase className="w-4 h-4" /> Digital Career Persona
+                  </Link>
+                  <Link
+                    to="/talent-profiler"
+                    className="flex items-center gap-2 text-gray-700 hover:text-blue-600 transition-colors"
+                  >
+                    <Star className="w-4 h-4" /> Talent Profiler
+                  </Link>
+                  <button
+                    onClick={logoutUser}
+                    className="flex items-center gap-2 text-red-500 hover:text-red-600 mt-3 w-full"
+                  >
+                    <LogOut className="w-4 h-4" /> Logout
+                  </button>
+                </div>
+              </div>
+            )}
+
         </div>
       </header>
-
-      {/* Navigation Bar */}
-      <nav className="bg-blue-100 px-6 py-2 flex gap-4 text-blue-700 font-medium">
-        <Link to="/applicant/dashboard">Dashboard</Link>
-        <Link to="/applicant/profile">Profile</Link>
-        <Link to="/applicant/jobs">Jobs</Link>
-      </nav>
 
       {/* Main Content */}
       <main className="flex-1 p-6">{children}</main>

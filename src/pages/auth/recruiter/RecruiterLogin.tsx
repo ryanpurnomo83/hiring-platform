@@ -9,19 +9,19 @@ import rakaminLogo from '../../../../public/rakamin-logo.png';
 import googleLogo from '../../../../public/Google_Logo_2025.png';
 
 export default function RecruiterLogin() {
-  const { login } = useAuth();
+  const { loginRecruiter, loginGoogle } = useAuth();
   const navigate = useNavigate();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
+  /*
   const handleLogin = () => {
     navigate("/recruiter/dashboard");
-     // login({ role: "applicant", name: "Ryan" });
-  };
+  };*/
 
-  const handleLogin1 = async (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!email || !password) {
@@ -29,12 +29,27 @@ export default function RecruiterLogin() {
       return;
     }
 
-    const response = await login(email, password);
+    const response = await loginRecruiter(email, password);
 
     if(response){
       navigate("/recruiter/dashboard");
     }else{
       alert("Email atau password salah.");
+    }
+  };
+
+  const handleLoginGoogle = async () => {
+    try {
+      const user = await loginGoogle("recruiter"); // Memanggil function loginGoogle dari context
+      if (user) {
+        console.log("Login Google berhasil:", user);
+        navigate("/applicant/dashboard");
+      } else {
+        alert("Login dengan Google gagal!");
+      }
+    } catch (error) {
+      console.error("Error Google login:", error);
+      alert("Login dengan Google gagal!");
     }
   };
 
@@ -45,7 +60,7 @@ export default function RecruiterLogin() {
   return (  
     <AuthLayout>
       {/* onSubmit={handleLogin1} */}
-      <form onSubmit={handleLogin1}>
+      <form onSubmit={handleLogin}>
       <div className="flex flex-col align-items justify-center w-full max-w-md">
         <img src={rakaminLogo} style={{width: "50%"}}/>
         <h2 className="text-2xl font-semibold mb-4">Masuk ke Rakamin</h2>
@@ -69,8 +84,7 @@ export default function RecruiterLogin() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             />
-
-          <a href={{}} className="mb-6">Lupa kata sandi</a>
+          <Link to="" className="mb-6">Lupa kata sandi</Link>
 
             <button type="submit" className="bg-yellow-400 hover:bg-yellow-500 text-black px-4 py-2 rounded w-full">
               Masuk
@@ -90,7 +104,7 @@ export default function RecruiterLogin() {
 
             <br />
             <button
-              onClick={handleLogin}
+              onClick={handleLoginGoogle}
               className="border p-2 text-black px-4 py-2 rounded w-full flex items-center justify-center gap-2 hover:bg-blue-200 transition"
             >
               <img src={googleLogo} className="w-5 h-5" /> Daftar dengan Google
@@ -121,10 +135,10 @@ export default function RecruiterLogin() {
 
             <br />
             <button
-              onClick={handleLogin}
+              onClick={handleLoginGoogle}
               className="border p-2 text-black px-4 py-2 rounded w-full flex items-center justify-center gap-2 hover:bg-blue-200 transition"
             >
-              <img src={googleLogo} className="w-5 h-5" /> Daftar dengan Google
+              <img src={googleLogo} className="w-5 h-5" /> Masuk dengan Google
             </button>
           </>
         )}

@@ -9,9 +9,11 @@ export interface User {
 export interface AuthContextType {
   user: User | null;
   registerApplicant: (email: string) => Promise<boolean>;
+  loginApplicant: (email:string, password: string) => Promise<boolean>;
   loginRecruiter: (email: string, password: string) => Promise<boolean>;
-  registerGoogle: () => Promise<User | null>;
-  logout: () => void;
+  loginGoogle: (role: string) => Promise<User | null>;
+  registerGoogle: (role: string) => Promise<User | null>;
+  logoutUser: () => void;
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);

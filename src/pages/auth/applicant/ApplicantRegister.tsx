@@ -43,11 +43,6 @@ export default function ApplicantLogin() {
     }
   };
 
-  /*
-  const showPasswordInput = () => {
-    setShowPassword(true);
-  }*/
-
   return (  
     <AuthLayout>
       <form onSubmit={handleRegister}>

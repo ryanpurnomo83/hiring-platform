@@ -1,11 +1,36 @@
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { jobListAPI } from "../../services/APIServices.js"
 
 export default function JobList() {
 
   const navigate = useNavigate();
 
-  const handlePublishJob = () => {
-    navigate("/recruiter/joblist");
+  const [jobName, setJobName] = useState("");
+  const [jobType, setJobType] = useState("");
+  const [description, setDescription] = useState("");
+  const [numCandidates, setNumCandidates] = useState("");
+  const [minSalary, setMinSalary] = useState("");
+  const [maxSalary, setMaxSalary] = useState("");
+
+  const handlePublishJob = async () => {
+    const jobData = {
+      position: jobName,
+      workTime: jobType,
+      description,
+      numCandidates: Number(numCandidates),
+      minSalary,
+      maxSalary,
+      createdAt: new Date(),
+    };
+
+    const result = await jobListAPI.addJobList(jobData);
+    if (result) {
+      alert("Lowongan berhasil disimpan!");
+      navigate("/recruiter/dashboard");
+    } else {
+      alert("Lowongan sudah terdaftar atau gagal disimpan.");
+    }
   }
 
   return (
@@ -17,12 +42,17 @@ export default function JobList() {
         <label className="font-medium">Job Name</label>
         <input
           type="text"
+          value={jobName}
+          onChange={(e) => setJobName(e.target.value)}
           className="border border-gray-300 rounded p-2 mb-4"
           placeholder="Ex. Front End Engineer"
         />
 
         <label className="font-medium">Job Type</label>
-        <select className="border border-gray-300 rounded p-2 mb-4" defaultValue="">
+        <select 
+          value={jobType}
+          onChange={(e) => setJobType(e.target.value)}
+          className="border border-gray-300 rounded p-2 mb-4" defaultValue="">
           <option value="" disabled hidden>Select Job Type</option>
           <option>Full-time</option>
           <option>Contract</option>
@@ -33,6 +63,8 @@ export default function JobList() {
 
         <label className="font-medium">Job Description</label>
         <textarea
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
           className="border border-gray-300 rounded mb-4 h-[10px] w-full p-2 resize-none"
           placeholder="Describe the job"
         />
@@ -40,6 +72,8 @@ export default function JobList() {
         <label className="font-medium">Number of Candidates Needed</label>
         <input
           type="number"
+          value={numCandidates}
+          onChange={(e) => setNumCandidates(e.target.value)}
           className="border border-gray-300 rounded p-2 mb-4"
           placeholder="Ex. 2"
         />
@@ -47,18 +81,22 @@ export default function JobList() {
         <p className="font-medium mb-2">Job Salary (Range)</p>
         <div className="flex gap-2 mb-6">
           <div className="flex flex-col w-full">
-              <label className="mb-1">Minimum Estimated Salary</label>
+            <label className="mb-1">Minimum Estimated Salary</label>
               <input
               type="text"
+              value={minSalary}
+              onChange={(e) => setMinSalary(e.target.value)}
               className="border border-gray-300 rounded p-2 w-full"
               placeholder="Min Salary"
-              />
+            />
           </div>
 
           <div className="flex flex-col w-full">
               <label className="mb-1">Maximum Estimated Salary</label>
               <input
               type="text"
+              value={maxSalary}
+              onChange={(e) => setMaxSalary(e.target.value)}
               className="border border-gray-300 rounded p-2 w-full"
               placeholder="Max Salary"
               />

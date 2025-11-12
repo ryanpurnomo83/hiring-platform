@@ -6,7 +6,7 @@ import rakaminLogo from '../../../public/rakamin-logo.png';
 export default function LoginSelectionPage() {
   return (
     <AuthLayout>
-      <div className="flex flex-col items-center justify-center min-h-screen text-center">
+      <div className="flex flex-col items-center justify-center text-center">
         <img src={rakaminLogo}/>
         <h1 className="text-3xl font-bold mb-6">Selamat Datang di Portal Rakamin Academy</h1>
         <p className="text-gray-600 mb-8">

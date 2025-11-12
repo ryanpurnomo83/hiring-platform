@@ -9,14 +9,43 @@ import rakaminLogo from '../../../../public/rakamin-logo.png';
 import googleLogo from '../../../../public/Google_Logo_2025.png';
 
 export default function ApplicantLogin() {
-  const { login } = useAuth();
+  const { loginApplicant, loginGoogle } = useAuth();
   const navigate = useNavigate();
 
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
-  const handleLogin = () => {
-    navigate("/applicant/dashboard");
-     // login({ role: "applicant", name: "Ryan" });
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if(!email || !password){
+      alert("Email dan password harus diisi!");
+      return;
+    }
+    
+    const response = await loginApplicant(email, password);
+
+    if(response){
+      navigate("/recruiter/dashboard");
+    }else{
+      alert("Email atau password salah.");
+    }
+  };
+
+  const handleLoginGoogle = async () => {
+    try {
+      const user = await loginGoogle("applicant"); // Memanggil function loginGoogle dari context
+      if (user) {
+        console.log("Login Google berhasil:", user);
+        navigate("/applicant/dashboard");
+      } else {
+        alert("Login dengan Google gagal!");
+      }
+    } catch (error) {
+      console.error("Error Google login:", error);
+      alert("Login dengan Google gagal!");
+    }
   };
 
   const showPasswordInput = () => {
@@ -32,12 +61,23 @@ export default function ApplicantLogin() {
         <br/>
         {/* <div>Email ini belum terdaftar sebagai akun di Rakamin Academy. Daftar</div> */}
         <label>Alamat email</label>
-        <input type="email" placeholder="Email" className="border p-2 rounded w-full mb-4" />
+        <input 
+          type="email" 
+          placeholder="Email" 
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="border p-2 rounded w-full mb-4" />
         {showPassword && (
           <>
           <label>Kata Sandi</label>
-          <input type="password" placeholder="Password" className="border p-2 rounded w-full mb-2" />
-          <a href={{}} className="mb-6">Lupa kata sandi</a>
+          <input 
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="border p-2 rounded w-full mb-2"
+            />
+          <Link to="" className="mb-6">Lupa kata sandi</Link>
 
             <button onClick={handleLogin} className="bg-yellow-400 hover:bg-yellow-500 text-black px-4 py-2 rounded w-full">
               Masuk
@@ -57,7 +97,7 @@ export default function ApplicantLogin() {
 
             <br />
             <button
-              onClick={handleLogin}
+              onClick={handleLoginGoogle}
               className="border p-2 text-black px-4 py-2 rounded w-full flex items-center justify-center gap-2 hover:bg-blue-200 transition"
             >
               <img src={googleLogo} className="w-5 h-5" /> Daftar dengan Google
@@ -88,10 +128,10 @@ export default function ApplicantLogin() {
 
             <br />
             <button
-              onClick={handleLogin}
+              onClick={handleLoginGoogle}
               className="border p-2 text-black px-4 py-2 rounded w-full flex items-center justify-center gap-2 hover:bg-blue-200 transition"
             >
-              <img src={googleLogo} className="w-5 h-5" /> Daftar dengan Google
+              <img src={googleLogo} className="w-5 h-5" /> Masuk dengan Google
             </button>
           </>
         )}
