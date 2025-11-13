@@ -5,7 +5,7 @@ import { LiaMoneyBillSolid } from "react-icons/lia";
 import SearchBGIcon from "../../../public/search-bg-icon.png";
 import JobForm from "./JobForm";
 import { jobListAPI } from "../../services/APIServices";
-import type { JobListItem } from "../../interfaces/joblist";
+import type { JobListItem } from "../../interfaces/JobList";
 import rakaminLogoOnly from "../../../public/rakamin-logo-only.png";
 import candidateList from "../../../public/Candidate_List.jpg";
 
