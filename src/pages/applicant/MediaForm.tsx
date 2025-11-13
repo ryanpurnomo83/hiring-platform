@@ -29,6 +29,8 @@ export default function MediaForm() {
     console.log("📸 Gambar ditangkap!");
   }
 
+  type FingerName = "Thumb" | "Index" | "Middle" | "Ring" | "Pinky";
+
   useEffect(() => {
     let camera: Camera | null = null;
 
@@ -65,7 +67,6 @@ export default function MediaForm() {
         canvasElement.height
       );
 
-      // Gambar garis & titik tangan
       if (results.multiHandLandmarks) {
         for (const landmarks of results.multiHandLandmarks) {
           drawConnectors(canvasCtx, landmarks, HAND_CONNECTIONS, {
@@ -77,7 +78,6 @@ export default function MediaForm() {
             lineWidth: 1,
           });
 
-          type FingerName = "Thumb" | "Index" | "Middle" | "Ring" | "Pinky";
           const fingers: FingerName[] = [];
 
           if (landmarks[4].x < landmarks[3].x) {
@@ -154,12 +154,6 @@ export default function MediaForm() {
         ></canvas>
       </div>
 
-      <button
-        onClick={handleCapture}
-        className="mt-4 bg-red-500 text-white px-5 py-2 rounded-full hover:bg-red-600 transition"
-      >
-        📸 Ambil Gambar
-      </button>
       <br/>
 
       {capturedImage && (

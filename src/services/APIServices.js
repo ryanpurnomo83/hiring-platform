@@ -301,8 +301,7 @@ export const jobListAPI = {
           },
         ],
       };
-
-      // Simpan ke Firestore (ID acak, tapi field id dikontrol)
+      
       //await addDoc(jobsCol, newJobData);
       await setDoc(doc(db, "jobs", jobId), newJobData);
       console.log(`Lowongan '${jobListData.title}' berhasil disimpan dengan ID: ${jobId}`);

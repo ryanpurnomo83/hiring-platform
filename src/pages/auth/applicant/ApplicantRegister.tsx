@@ -30,7 +30,7 @@ export default function ApplicantLogin() {
 
   const handleRegisterGoogle = async () => {
     try {
-      const user = await registerGoogle(); // Memanggil function loginGoogle dari context
+      const user = await registerGoogle("applicant"); // Memanggil function loginGoogle dari context
       if (user) {
         console.log("Login Google berhasil:", user);
         navigate("/applicant/dashboard");
