@@ -387,6 +387,6 @@ export const jobListAPI = {
 
 };
 
-fetchApplicants();
-fetchRecruiters();
+//fetchApplicants();
+//fetchRecruiters();
 

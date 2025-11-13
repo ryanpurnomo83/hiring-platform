@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { CiSearch } from "react-icons/ci";
 import { TiLocationOutline } from "react-icons/ti";
 import { LiaMoneyBillSolid } from "react-icons/lia";
@@ -10,9 +11,9 @@ import rakaminLogoOnly from "../../../public/rakamin-logo-only.png";
 import candidateList from "../../../public/Candidate_List.jpg";
 
 export default function Dashboard() {
+  const navigate = useNavigate();
   const [showForm, setShowForm] = useState(false);
   const [jobList, setJobList] =  useState<JobListItem[]>([]);
-  // useState([]);
   const [loading, setLoading] = useState(true);
 
   // ✅ Ambil data dari Firestore saat komponen pertama kali dimuat
@@ -126,6 +127,7 @@ export default function Dashboard() {
         {/* ✅ Filled State (ada data job) */}
         {!loading && showJobList && (
           <div className="max-w-6xl mt-1">
+
             <div className="flex justify-between items-center mb-4">
               <button
                 onClick={handleFetchJobList}
@@ -139,8 +141,7 @@ export default function Dashboard() {
               {jobList.map((job, index) => (
                 <div
                   key={index}
-                  className="border p-4 rounded-lg shadow-sm bg-white hover:shadow-md transition"
-                >
+                  className="border p-4 rounded-lg shadow-sm bg-white hover:shadow-md transition">
                   <div className="flex items-center gap-3 mb-2">
                     <img
                       src={rakaminLogoOnly}
@@ -178,13 +179,14 @@ export default function Dashboard() {
                   <div className="mt-3">
                     <button 
                       className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-1 rounded-md text-sm"
-                      onClick={ () => window.location.href="/recruiter/managejob" }>
+                      onClick={ () => navigate("/recruiter/managejob")}>
                       {job.list_card?.cta ?? "Manage Job"}
                     </button>
                   </div>
                 </div>
               ))}
             </div>
+
           </div>
         )}
       </div>

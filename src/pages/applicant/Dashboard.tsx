@@ -1,116 +1,82 @@
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import rakaminLogoOnly from "../../../public/rakamin-logo-only.png";
 import { TiLocationOutline } from "react-icons/ti";
 import { LiaMoneyBillSolid } from "react-icons/lia";
 
+import { jobListAPI } from "../../services/APIServices";
+import type { JobListItem } from "../../interfaces/JobList";
+
 export default function Dashboard() {
     const navigate = useNavigate();
+    const [jobList, setJobList] =  useState<JobListItem[]>([]);
+
+    useEffect(() => {
+        const fetchJobs = async () => {
+          const jobs = await jobListAPI.fetchJobList();
+          setJobList(jobs);
+        };
+        fetchJobs();
+    }, []);
+    
+    
+    const showJobList = jobList.length > 0;
+
   return (
     <>
       <div className="flex gap-8 justify-center items-start p-6">
         {/* Job Card List Wrapper */}
         <div className="w-full max-w-md rounded-lg  h-[500px] overflow-y-scroll">
 
+          {/* 🔴 Empty State */}
+          {!showJobList && (
+            <div className="text-center">
+              <h1 className="text-xl font-semibold mb-2">
+                No job opening available
+              </h1>
+              <p className="text-gray-600 mb-4">
+                Create a job opening now and start the candidate process.
+              </p>
+              
+            </div>
+          )}
+
           {/* Job Card List */}
-          <div className="border p-4 rounded-lg mb-4">
-            <div className="flex items-center gap-3 mb-2">
-              <img
-                src={rakaminLogoOnly}
-                alt="Rakamin Logo"
-                className="w-12 h-12 object-contain"
-              />
-              <div>
-                <h2 className="font-semibold text-lg">UX Designer</h2>
-                <p className="text-gray-600 text-sm">Rakamin</p>
+          {showJobList && (
+          <div className="w-full max-w-md rounded-lg  h-[500px] overflow-y-scroll">
+            {jobList.map((job, index) => (
+            <div
+              key={index} 
+              className="border p-4 rounded-lg mb-4">
+              <div className="flex items-center gap-3 mb-2">
+                <img
+                  src={rakaminLogoOnly}
+                  alt="Rakamin Logo"
+                  className="w-12 h-12 object-contain"
+                />
+                <div>
+                  <h2 className="font-semibold text-lg">{job.title}</h2>
+                  <p className="text-gray-600 text-sm">{job.slug || "No slug"}</p>
+                </div>
+              </div>
+
+              <div className="text-gray-700 text-sm space-y-1">
+                <p className="flex items-center gap-2">
+                  <TiLocationOutline className="text-gray-500" />
+                  Jakarta Selatan
+                </p>
+                <p className="flex items-center gap-2">
+                  <LiaMoneyBillSolid className="text-gray-500" />
+                  {job.salary_range?.display_text ||
+                        `${job.salary_range?.min ?? "-"} - ${
+                          job.salary_range?.max ?? "-"
+                  } ${job.salary_range?.currency ?? ""}`}
+                </p>
               </div>
             </div>
-
-            <div className="text-gray-700 text-sm space-y-1">
-              <p className="flex items-center gap-2">
-                <TiLocationOutline className="text-gray-500" />
-                Jakarta Selatan
-              </p>
-              <p className="flex items-center gap-2">
-                <LiaMoneyBillSolid className="text-gray-500" />
-                Rp7.000.000 - Rp15.000.000
-              </p>
-            </div>
+            ))}
           </div>
-
-          <div className="border p-4 rounded-lg mb-4">
-            <div className="flex items-center gap-3 mb-2">
-              <img
-                src={rakaminLogoOnly}
-                alt="Rakamin Logo"
-                className="w-12 h-12 object-contain"
-              />
-              <div>
-                <h2 className="font-semibold text-lg">UX Designer</h2>
-                <p className="text-gray-600 text-sm">Rakamin</p>
-              </div>
-            </div>
-
-            <div className="text-gray-700 text-sm space-y-1">
-              <p className="flex items-center gap-2">
-                <TiLocationOutline className="text-gray-500" />
-                Jakarta Selatan
-              </p>
-              <p className="flex items-center gap-2">
-                <LiaMoneyBillSolid className="text-gray-500" />
-                Rp7.000.000 - Rp15.000.000
-              </p>
-            </div>
-          </div>
-
-          <div className="border p-4 rounded-lg mb-4">
-            <div className="flex items-center gap-3 mb-2">
-              <img
-                src={rakaminLogoOnly}
-                alt="Rakamin Logo"
-                className="w-12 h-12 object-contain"
-              />
-              <div>
-                <h2 className="font-semibold text-lg">UX Designer</h2>
-                <p className="text-gray-600 text-sm">Rakamin</p>
-              </div>
-            </div>
-
-            <div className="text-gray-700 text-sm space-y-1">
-              <p className="flex items-center gap-2">
-                <TiLocationOutline className="text-gray-500" />
-                Jakarta Selatan
-              </p>
-              <p className="flex items-center gap-2">
-                <LiaMoneyBillSolid className="text-gray-500" />
-                Rp7.000.000 - Rp15.000.000
-              </p>
-            </div>
-          </div>
-
-          <div className="border p-4 rounded-lg mb-4">
-            <div className="flex items-center gap-3 mb-2">
-              <img
-                src={rakaminLogoOnly}
-                alt="Rakamin Logo"
-                className="w-12 h-12 object-contain"
-              />
-              <div>
-                <h2 className="font-semibold text-lg">Frontend Developer</h2>
-                <p className="text-gray-600 text-sm">Rakamin</p>
-              </div>
-            </div>
-
-            <div className="text-gray-700 text-sm space-y-1">
-              <p className="flex items-center gap-2">
-                <TiLocationOutline className="text-gray-500" />
-                Jakarta Selatan
-              </p>
-              <p className="flex items-center gap-2">
-                <LiaMoneyBillSolid className="text-gray-500" />
-                Rp10.000.000 - Rp18.000.000
-              </p>
-            </div>
-          </div>
+          )}
         </div>
 
         {/* Job Description */}
