@@ -77,7 +77,8 @@ export default function MediaForm() {
             lineWidth: 1,
           });
 
-          const fingers = [];
+          type FingerName = "Thumb" | "Index" | "Middle" | "Ring" | "Pinky";
+          const fingers: FingerName[] = [];
 
           if (landmarks[4].x < landmarks[3].x) {
             fingers.push("Thumb");

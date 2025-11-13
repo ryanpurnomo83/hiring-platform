@@ -2,6 +2,8 @@ import { useState, type ReactNode } from "react";
 import { useAuth } from "../context/useAuth";
 import { Link, useLocation } from "react-router-dom";
 import { LogOut, User, Briefcase, Star } from "lucide-react";
+import { FaArrowRight } from "react-icons/fa";
+
 
 interface RecruiterLayoutProps {
   children: ReactNode;
@@ -23,8 +25,16 @@ export default function RecruiterLayout({ children }: RecruiterLayoutProps) {
 
       {isManageJobPage ? (
       <header className="border-b-1 bg-white text-black px-6 py-4 flex justify-between items-center">
-        <h1 className="text-xl font-semibold">JobList</h1>
-        <h1 className="text-xl font-semibold">Manage Candidate</h1>
+        <div className="flex items-center justify-start gap-4 mt-4 ml-6">
+          <div className="bg-white-200 border border-gray-300 rounded-lg px-6 py-2 shadow hover:shadow-lg transition-shadow cursor-pointer">
+            <h1 className="text-xl font-semibold">JobList</h1>
+          </div>
+          <FaArrowRight className="text-gray-500 w-6 h-6" />
+          <div className="bg-gray-200 border border-gray-300 rounded-lg px-6 py-2 shadow hover:shadow-lg transition-shadow cursor-pointer">
+            <h1 className="text-xl font-semibold">Manage Candidate</h1>
+          </div>
+        </div>
+        
         <div className="flex items-center gap-4">
           <span>{user?.name}</span>
           <div 

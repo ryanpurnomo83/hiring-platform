@@ -2,7 +2,7 @@ import { Routes, Route } from "react-router-dom";
 // import ProtectedRoute from "./ProtectedRoute";
 import ApplicantLayout from "../layouts/ApplicantLayout";
 import Dashboard from "../pages/applicant/Dashboard";
-import Profile from "../pages/applicant/Profile";
+// import Profile from "../pages/applicant/Profile";
 import JobForm from "../pages/applicant/JobForm";
 
 export default function ApplicantRoutes() {
@@ -12,7 +12,7 @@ export default function ApplicantRoutes() {
         <Routes>
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="jobform" element={<JobForm/>} />
-          <Route path="profile" element={<Profile />} />
+          {/* <Route path="profile" element={<Profile />} /> */}
         </Routes>
       </ApplicantLayout>
     // </ProtectedRoute>

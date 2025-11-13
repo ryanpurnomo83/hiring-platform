@@ -64,7 +64,7 @@ export default function RecruiterLogin() {
       <div className="flex flex-col align-items justify-center w-full max-w-md">
         <img src={rakaminLogo} style={{width: "50%"}}/>
         <h2 className="text-2xl font-semibold mb-4">Masuk ke Rakamin</h2>
-        <p>Belum punya akun? <Link to="/register/recruiter">Daftar</Link></p>
+        {/* <p>Belum punya akun? <Link to="/register/recruiter">Daftar</Link></p> */}
         <br/>
         <label>Alamat email</label>
         <input 
