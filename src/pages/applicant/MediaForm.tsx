@@ -7,11 +7,18 @@ import HandPose1 from "../../../public/1.png";
 import HandPose2 from "../../../public/2.png";
 import HandPose3 from "../../../public/3.png";
 
-export default function MediaForm() {
+interface MediaFormProps {
+  onSubmitCapture: (image: string) => void;
+  onResetCapture: () => void;
+  onClose?: () => void;
+}
+
+export default function MediaForm({ onSubmitCapture, onResetCapture, onClose }: MediaFormProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [lastCaptureTime, setLastCaptureTime] = useState<number>(0);
+
 
   const handleCapture  = () => {
     const video = videoRef.current;
@@ -28,6 +35,20 @@ export default function MediaForm() {
     setCapturedImage(imageDataUrl);
     console.log("📸 Gambar ditangkap!");
   }
+
+  const handleSubmit = () => {
+    if (capturedImage) {
+      localStorage.setItem("capturedImage", capturedImage);
+      onSubmitCapture(capturedImage);
+      if (onClose) onClose();
+    }
+  };
+
+  const handleReset = () => {
+    setCapturedImage(null);
+    localStorage.removeItem("capturedImage");
+    onResetCapture();
+  };
 
   type FingerName = "Thumb" | "Index" | "Middle" | "Ring" | "Pinky";
 
@@ -136,48 +157,66 @@ export default function MediaForm() {
   }, []);
 
   return (
-    <div className="flex flex-col items-center">
-      <h2 className="font-semibold">Raise Your Hand to Capture</h2>
-      <p>We'll take the photo once your hand pose is detected.</p>
+  // Tambahkan kelas h-full dan overflow-y-auto ke wrapper utama
+  <div className="flex flex-col items-center h-full max-h-[90vh] overflow-y-auto p-4">
+    <h2 className="font-semibold">Raise Your Hand to Capture</h2>
+    <p>We'll take the photo once your hand pose is detected.</p>
 
-      {/* Container agar video dan canvas bisa tumpang tindih */}
-      <div className="relative border border-gray-300 rounded overflow-hidden">
-        <video
-          ref={videoRef}
-          className="object-cover"
-          style={{ width: 800, height: 384 }}
-        ></video>
-        <canvas
-          ref={canvasRef}
-          className="absolute top-0 left-0"
-          style={{ width: 800, height: 384 }}
-        ></canvas>
-      </div>
-
-      <br/>
-
-      {capturedImage && (
-        <div className="mt-4 text-center">
-          <h3 className="font-semibold mb-2">Hasil Tangkap:</h3>
-          <img
-            src={capturedImage}
-            alt="Hasil Tangkap"
-            className="border rounded-md shadow-md"
-            style={{ width: "400px" }}
-          />
-        </div>
-      )}
-      <br/>
-      <p className="mt-4 mb-4">
-        To take a picture, follow the hand poses in the order shown below. The
-        system will automatically capture the image once the final pose is
-        detected.
-      </p>
-      <div className="flex flex-row gap-8">
-        <img src={HandPose1} style={{ width: "85px" }} />
-        <img src={HandPose2} style={{ width: "85px" }} />
-        <img src={HandPose3} style={{ width: "85px" }} />
-      </div>
+    {/* Container agar video dan canvas bisa tumpang tindih */}
+    <div className="relative border border-gray-300 rounded overflow-hidden mt-4">
+      <video
+        ref={videoRef}
+        className="object-cover"
+        style={{ width: 800, height: 384 }}
+      ></video>
+      <canvas
+        ref={canvasRef}
+        className="absolute top-0 left-0"
+        style={{ width: 800, height: 384 }}
+      ></canvas>
     </div>
-  );
+
+    {capturedImage && (
+      <div className="mt-4 text-center">
+        <h3 className="font-semibold mb-2">Hasil Tangkap:</h3>
+        <img
+          src={capturedImage}
+          alt="Hasil Tangkap"
+          className="border rounded-md shadow-md"
+          style={{ width: "400px" }}
+        />
+      </div>
+    )}
+
+    <p className="mt-4 mb-4">
+      To take a picture, follow the hand poses in the order shown below. The
+      system will automatically capture the image once the final pose is
+      detected.
+    </p>
+
+    <div className="flex flex-row gap-8 mb-4">
+      <img src={HandPose1} style={{ width: "85px" }} />
+      <img src={HandPose2} style={{ width: "85px" }} />
+      <img src={HandPose3} style={{ width: "85px" }} />
+    </div>
+
+    <br/>
+    <div className="flex flex-row gap-4">
+      <button
+        onClick={handleSubmit}
+        className="bg-teal-600 hover:bg-teal-700 text-white font-semibold px-4 py-2 rounded-md transition-colors duration-200"
+      >
+        Submit
+      </button>
+      <button
+        onClick={handleReset}
+        className="bg-red-600 hover:bg-red-700 text-white font-semibold px-4 py-2 rounded-md transition-colors duration-200"
+      >
+        Reset
+      </button>
+    </div>
+    
+  </div>
+);
+
 }

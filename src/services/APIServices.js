@@ -228,10 +228,59 @@ export const authAPI = {
 };
 
 
-export const usersAPI = {
+export const candidatesAPI = {
 
-  async addPersonalData(){
+  async addPersonalData(candidateData) {
+    try {
+      const candidatesCol = collection(db, "candidates");
+      const snapshot = await getDocs(candidatesCol);
 
+      let isDuplicate = false;
+
+      snapshot.forEach((docSnap) => {
+        const docData = docSnap.data();
+        if (docData.data && Array.isArray(docData.data)) {
+          for (const cand of docData.data) {
+            const emailAttr = cand.attributes.find(attr => attr.key === "email");
+            if (emailAttr && emailAttr.value === candidateData.email) {
+              isDuplicate = true;
+            }
+          }
+        }
+      });
+
+      if (isDuplicate) {
+        console.log(`Kandidat dengan email '${candidateData.email}' sudah terdaftar.`);
+        return false;
+      }
+
+      const candId = `cand_${String(snapshot.size + 1).padStart(4, "0")}`;
+
+      const newCandData = {
+        data: [
+          {
+            id: candId,
+            attributes: [
+              { key: "full_name", label: "Full Name", value: candidateData.fullName, order: 1 },
+              { key: "email", label: "Email", value: candidateData.email, order: 2 },
+              { key: "phone", label: "Phone", value: candidateData.phone, order: 3 },
+              { key: "domicile", label: "Domicile", value: candidateData.domicile, order: 4 },
+              { key: "gender", label: "Gender", value: candidateData.gender, order: 5 },
+              { key: "linkedin_link", label: "LinkedIn", value: candidateData.linkedin, order: 6 },
+              { key: "profile_photo", label: "Profile Photo", value: candidateData.photo, order: 6 },
+            ]
+          }
+        ]
+      };
+
+      await setDoc(doc(db, "candidates", candId), newCandData);
+      console.log(`Data kandidat '${candidateData.fullname}' berhasil disimpan dengan ID: ${candId}`);
+      return true;
+
+    } catch (error) {
+      console.error("Gagal menyimpan data kandidat:", error);
+      return false;
+    }
   },
 
   async updatePersonalData(){
@@ -301,7 +350,7 @@ export const jobListAPI = {
           },
         ],
       };
-      
+
       //await addDoc(jobsCol, newJobData);
       await setDoc(doc(db, "jobs", jobId), newJobData);
       console.log(`Lowongan '${jobListData.title}' berhasil disimpan dengan ID: ${jobId}`);
@@ -323,7 +372,7 @@ export const jobListAPI = {
       snapshot.forEach((docSnap) => {
         const docData = docSnap.data();
         if (docData.data && Array.isArray(docData.data)) {
-          allJobs.push(...docData.data); // gabungkan semua job di array data
+          allJobs.push(...docData.data); 
         }
       });
 

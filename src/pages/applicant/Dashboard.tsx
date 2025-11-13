@@ -1,7 +1,7 @@
-import { TiLocationOutline } from "react-icons/ti";
-import { LiaMoneyBillSolid } from "react-icons/lia";
 import { useNavigate } from "react-router-dom";
 import rakaminLogoOnly from "../../../public/rakamin-logo-only.png";
+import { TiLocationOutline } from "react-icons/ti";
+import { LiaMoneyBillSolid } from "react-icons/lia";
 
 export default function Dashboard() {
     const navigate = useNavigate();
