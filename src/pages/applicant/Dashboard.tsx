@@ -10,17 +10,28 @@ import type { JobListItem } from "../../interfaces/JobList";
 export default function Dashboard() {
     const navigate = useNavigate();
     const [jobList, setJobList] =  useState<JobListItem[]>([]);
+    const [selectedJob, setSelectedJob] = useState<JobListItem | null>(null);
 
     useEffect(() => {
         const fetchJobs = async () => {
           const jobs = await jobListAPI.fetchJobList();
           setJobList(jobs);
+
+          if(jobs.length > 0){
+            setSelectedJob(jobs[0]);
+          }
         };
         fetchJobs();
     }, []);
     
     
     const showJobList = jobList.length > 0;
+    // TAMBAHKAN INI sebelum return
+    const descriptionList = selectedJob?.description
+      ?.split("\n")
+      .map(item => item.replace(/^-/, "").trim())
+      .filter(item => item.length > 1) ?? [];
+
 
   return (
     <>
@@ -47,7 +58,8 @@ export default function Dashboard() {
             {jobList.map((job, index) => (
             <div
               key={index} 
-              className="border p-4 rounded-lg mb-4">
+              onClick={() => setSelectedJob(job)}
+              className={`border p-4 rounded-lg mb-4 cursor-pointer transition ${selectedJob?.id === job.id ? "border-blue-500 shadow-md bg-blue-50" : "bg-white"}`}>
               <div className="flex items-center gap-3 mb-2">
                 <img
                   src={rakaminLogoOnly}
@@ -79,94 +91,46 @@ export default function Dashboard() {
           )}
         </div>
 
+
         {/* Job Description */}
-        <div className="border p-6 w-full max-w-3xl rounded-lg shadow-sm bg-white">
-          <div className="flex items-start justify-between mb-3">
-            <div className="flex items-center gap-3">
-              <img
-                src={rakaminLogoOnly}
-                alt="Rakamin Logo"
-                className="w-12 h-12 object-contain"
-              />
-              <div>
-                <span className="inline-block bg-green-500 text-white text-xs px-2 py-1 rounded-md mb-1">
-                  Full-Time
-                </span>
-                <h2 className="font-semibold text-lg leading-tight">
-                  UX Designer
-                </h2>
-                <p className="text-gray-600 text-sm">Rakamin</p>
+        {selectedJob && (
+          <div className="border p-6 w-full max-w-3xl rounded-lg shadow-sm bg-white">
+            <div className="flex items-start justify-between mb-3">
+              <div className="flex items-center gap-3">
+                <img
+                  src={rakaminLogoOnly}
+                  alt="Rakamin Logo"
+                  className="w-12 h-12 object-contain"
+                />
+                <div>
+                  <span className="inline-block bg-green-500 text-white text-xs px-2 py-1 rounded-md mb-1">
+                    {selectedJob.workTime}
+                  </span>
+                  <h2 className="font-semibold text-lg leading-tight">
+                    {selectedJob.title}
+                  </h2>
+                  <p className="text-gray-600 text-sm">{selectedJob.slug}</p>
+                </div>
               </div>
+              <button
+                  onClick={() => {navigate("/applicant/jobform");}} 
+                  className="bg-yellow-400 hover:bg-yellow-500 text-white text-sm font-medium px-3 py-1 rounded-md transition">
+                Apply
+              </button>
             </div>
-            <button
-                onClick={() => {navigate("/applicant/jobform");}} 
-                className="bg-yellow-400 hover:bg-yellow-500 text-white text-sm font-medium px-3 py-1 rounded-md transition">
-              Apply
-            </button>
+
+            <hr className="my-3" />
+
+            <ul className="list-disc list-inside text-gray-700 text-sm space-y-1">
+              <li>
+                {descriptionList?.map((item, index) => (
+                  <li key={index}>{item}</li>
+                )) || <li>No description available.</li>}
+              </li>
+            </ul>
+
           </div>
-
-          <hr className="my-3" />
-
-          <ul className="list-disc list-inside text-gray-700 text-sm space-y-1">
-            <li>
-              Develop, test, and maintain responsive, high-performance web
-              applications using modern front-end technologies.
-            </li>
-            <li>
-              Collaborate with UI/UX designers to translate wireframes and
-              prototypes into functional code.
-            </li>
-            <li>
-              Integrate front-end components with APIs and backend services.
-            </li>
-            <li>
-              Ensure cross-browser compatibility and optimize applications for
-              maximum speed and scalability.
-            </li>
-            <li>
-              Write clean, reusable, and maintainable code following best
-              practices and coding standards.
-            </li>
-            <li>
-              Participate in code reviews, contributing to continuous
-              improvement and knowledge sharing.
-            </li>
-            <li>
-              Troubleshoot and debug issues to improve usability and overall
-              application quality.
-            </li>
-            <li>
-              Stay updated with emerging front-end technologies and propose
-              innovative solutions.
-            </li>
-            <li>
-              Collaborate in Agile/Scrum ceremonies, contributing to sprint
-              planning, estimation, and retrospectives.
-            </li>
-          </ul>
-        </div>
-
-
-        {/* Empty State */}
-        {/*}
-        <div className="text-center">
-          <img 
-            src={SearchBGIcon} 
-            alt="No jobs background"
-            style={{ width: "20%" }}
-            className="mx-auto mb-4"
-          />
-          <h1 className="text-xl font-semibold mb-2">No job opening available</h1>
-          <p className="text-gray-600 mb-4">
-            Create a job opening now and start the candidate process.
-          </p>
-          <button 
-            onClick={()=> setshowForm(true)}
-            className="bg-yellow-400 hover:bg-yellow-500 text-white font-medium px-5 py-2 rounded-md transition">
-            Create a new job
-          </button>
-        </div>*/}
-
+        )}
       </div>
     </>
   );

@@ -2,6 +2,7 @@ export interface JobListItem {
   id: string;
   slug: string | null;
   title: string | null;
+  workTime: string | null;
   status?: string;
   salary_range?: {
     min?: number | null;
