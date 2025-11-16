@@ -7,10 +7,13 @@ import { LiaMoneyBillSolid } from "react-icons/lia";
 import { jobListAPI } from "../../services/APIServices";
 import type { JobListItem } from "../../interfaces/JobList";
 
+import LoadingSpinner from "../../components/loadingspinner";
+
 export default function Dashboard() {
     const navigate = useNavigate();
     const [jobList, setJobList] =  useState<JobListItem[]>([]);
     const [selectedJob, setSelectedJob] = useState<JobListItem | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         const fetchJobs = async () => {
@@ -20,21 +23,29 @@ export default function Dashboard() {
           if(jobs.length > 0){
             setSelectedJob(jobs[0]);
           }
+
+          setIsLoading(false);
         };
         fetchJobs();
     }, []);
     
     
     const showJobList = jobList.length > 0;
-    // TAMBAHKAN INI sebelum return
+    
     const descriptionList = selectedJob?.description
       ?.split("\n")
       .map(item => item.replace(/^-/, "").trim())
-      .filter(item => item.length > 1) ?? [];
+      .filter(item => item.length > 0) ?? [];
 
 
   return (
     <>
+    {isLoading ? (
+      <div className="flex flex-col justify-center items-center w-full min-h-screen gap-2">
+        <LoadingSpinner />
+        <h1 className="font-bold text-black text-xl">Loading</h1>
+      </div>
+    ) : (
       <div className="flex gap-8 justify-center items-start p-6">
         {/* Job Card List Wrapper */}
         <div className="w-full max-w-md rounded-lg  h-[500px] overflow-y-scroll">
@@ -132,6 +143,7 @@ export default function Dashboard() {
           </div>
         )}
       </div>
+    )}
     </>
   );
 }
