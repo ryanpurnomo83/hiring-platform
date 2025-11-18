@@ -12,6 +12,32 @@ export default function JobList() {
   const [numCandidates, setNumCandidates] = useState("");
   const [minSalary, setMinSalary] = useState("");
   const [maxSalary, setMaxSalary] = useState("");
+  const [requiredData, setRequiredData] = useState({
+    fullName: "mandatory",
+    photo: "optional",
+    gender: "optional",
+    domicile: "optional",
+    email: "mandatory",
+    phone: "optional",
+    linkedin: "off",
+    dob: "optional",
+  });
+
+  // ✔ Daftar field yang akan di-loop
+  const fields = [
+    { key: "fullName", label: "Full Name" },
+    { key: "photo", label: "Photo Profile" },
+    { key: "gender", label: "Gender" },
+    { key: "domicile", label: "Domicile" },
+    { key: "email", label: "Email" },
+    { key: "phone", label: "Phone Number" },
+    { key: "linkedin", label: "LinkedIn Link" },
+    { key: "dob", label: "Date of Birth" },
+  ];
+
+  const updateImportance = (fieldKey, value) => {
+    setRequiredData(prev => ({ ...prev, [fieldKey]: value }));
+  };
 
   const handlePublishJob = async () => {
     const jobData = {
@@ -104,135 +130,52 @@ export default function JobList() {
         </div>
 
         <div className="flex flex-col w-full border border-gray-300 bg-white p-6 rounded-lg mb-10">
-
           <label className="mb-6">Minimum Profile Information Required</label>
 
-          <div className="flex items-center justify-between">
-            <h3 className="font-medium">Full Name</h3>
-            <div className="flex gap-2">
-              <button className="border border-gray-300 rounded px-3 py-1 shadow-md bg-white hover:bg-gray-100 transition">
-                Mandatory
-              </button>
-              <button className="border border-gray-300 rounded px-3 py-1 shadow-md bg-white hover:bg-gray-100 transition">
-                Optional
-              </button>
-              <button className="border border-gray-300 rounded px-3 py-1 shadow-md bg-white hover:bg-gray-100 transition">
-                Off
-              </button>
-            </div>
-          </div>
+          {fields.map((item, index) => (
+            <div key={index} className="flex items-center justify-between mb-4">
+              <h3 className="font-medium">{item.label}</h3>
 
-          <br/>
-          <div className="flex items-center justify-between">
-            <h3 className="font-medium">Photo Profile</h3>
-            <div className="flex gap-2">
-              <button className="border border-gray-300 rounded px-3 py-1 shadow-md bg-white hover:bg-gray-100 transition">
-                Mandatory
-              </button>
-              <button className="border border-gray-300 rounded px-3 py-1 shadow-md bg-white hover:bg-gray-100 transition">
-                Optional
-              </button>
-              <button className="border border-gray-300 rounded px-3 py-1 shadow-md bg-white hover:bg-gray-100 transition">
-                Off
-              </button>
-            </div>
-          </div>
+              <div className="flex gap-2">
 
-          <br/>
-          <div className="flex items-center justify-between">
-            <h3 className="font-medium">Gender</h3>
-            <div className="flex gap-2">
-              <button className="border border-gray-300 rounded px-3 py-1 shadow-md bg-white hover:bg-gray-100 transition">
-                Mandatory
-              </button>
-              <button className="border border-gray-300 rounded px-3 py-1 shadow-md bg-white hover:bg-gray-100 transition">
-                Optional
-              </button>
-              <button className="border border-gray-300 rounded px-3 py-1 shadow-md bg-white hover:bg-gray-100 transition">
-                Off
-              </button>
-            </div>
-          </div>
+                {/* MANDATORY */}
+                <button
+                  onClick={() => updateImportance(item.key, "mandatory")}
+                  className={`border rounded-2xl px-3 py-1 shadow-md transition
+                    ${requiredData[item.key] === "mandatory"
+                      ? "bg-[#F3FBFC] border-[#4DB5BC] text-[#4DB5BC]"
+                      : "bg-white border-gray-300"}
+                  `}
+                >
+                  Mandatory
+                </button>
 
-          <br/>
-          <div className="flex items-center justify-between">
-            <h3 className="font-medium">Domicile</h3>
-            <div className="flex gap-2">
-              <button className="border border-gray-300 rounded px-3 py-1 shadow-md bg-white hover:bg-gray-100 transition">
-                Mandatory
-              </button>
-              <button className="border border-gray-300 rounded px-3 py-1 shadow-md bg-white hover:bg-gray-100 transition">
-                Optional
-              </button>
-              <button className="border border-gray-300 rounded px-3 py-1 shadow-md bg-white hover:bg-gray-100 transition">
-                Off
-              </button>
-            </div>
-          </div>
+                {/* OPTIONAL */}
+                <button
+                  onClick={() => updateImportance(item.key, "optional")}
+                  className={`border rounded-2xl px-3 py-1 shadow-md transition
+                    ${requiredData[item.key] === "optional"
+                      ? "bg-[#F3FBFC] border-[#4DB5BC] text-[#4DB5BC]"
+                      : "bg-white border-gray-300"}
+                  `}
+                >
+                  Optional
+                </button>
 
-          <br/>
-          <div className="flex items-center justify-between">
-            <h3 className="font-medium">Email</h3>
-            <div className="flex gap-2">
-              <button className="border border-gray-300 rounded px-3 py-1 shadow-md bg-white hover:bg-gray-100 transition">
-                Mandatory
-              </button>
-              <button className="border border-gray-300 rounded px-3 py-1 shadow-md bg-white hover:bg-gray-100 transition">
-                Optional
-              </button>
-              <button className="border border-gray-300 rounded px-3 py-1 shadow-md bg-white hover:bg-gray-100 transition">
-                Off
-              </button>
+                {/* OFF */}
+                <button
+                  onClick={() => updateImportance(item.key, "off")}
+                  className={`border rounded-2xl px-3 py-1 shadow-md transition
+                    ${requiredData[item.key] === "off"
+                      ? "bg-[#F3FBFC] border-[#4DB5BC] text-[#4DB5BC]"
+                      : "bg-white border-gray-300"}
+                  `}
+                >
+                  Off
+                </button>
+              </div>
             </div>
-          </div>
-
-          <br/>
-          <div className="flex items-center justify-between">
-            <h3 className="font-medium">Phone Number</h3>
-            <div className="flex gap-2">
-              <button className="border border-gray-300 rounded px-3 py-1 shadow-md bg-white hover:bg-gray-100 transition">
-                Mandatory
-              </button>
-              <button className="border border-gray-300 rounded px-3 py-1 shadow-md bg-white hover:bg-gray-100 transition">
-                Optional
-              </button>
-              <button className="border border-gray-300 rounded px-3 py-1 shadow-md bg-white hover:bg-gray-100 transition">
-                Off
-              </button>
-            </div>
-          </div>
-
-          <br/>
-          <div className="flex items-center justify-between">
-            <h3 className="font-medium">Linkedin link</h3>
-            <div className="flex gap-2">
-              <button className="border border-gray-300 rounded px-3 py-1 shadow-md bg-white hover:bg-gray-100 transition">
-                Mandatory
-              </button>
-              <button className="border border-gray-300 rounded px-3 py-1 shadow-md bg-white hover:bg-gray-100 transition">
-                Optional
-              </button>
-              <button className="border border-gray-300 rounded px-3 py-1 shadow-md bg-white hover:bg-gray-100 transition">
-                Off
-              </button>
-            </div>
-          </div>
-
-          <br/>
-          <div className="flex items-center justify-between">
-            <h3 className="font-medium">Date of Birth</h3>
-            <div className="flex gap-2">
-              <button className="border border-gray-300 rounded px-3 py-1 shadow-md bg-white hover:bg-gray-100 transition">
-                Mandatory
-              </button>
-              <button className="border border-gray-300 rounded px-3 py-1 shadow-md bg-white hover:bg-gray-100 transition">
-                Optional
-              </button>
-              <button className="border border-gray-300 rounded px-3 py-1 shadow-md bg-white hover:bg-gray-100 transition">
-                Off
-              </button>
-            </div>
-          </div>
+          ))}
 
         </div>
       </div>

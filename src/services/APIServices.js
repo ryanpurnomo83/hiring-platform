@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, sendSignInLinkToEmail } from "firebase/auth";
 import { getFirestore, doc, addDoc, getDoc, getDocs, setDoc, collection, query, where } from "firebase/firestore";
 // import { GoogleLogin } from 'react-google-login';
 // import { gapi } from 'gapi-script';
@@ -93,8 +93,82 @@ async function fetchApplicants() {
   }
 }
 
-
 export const authAPI = {
+
+  async isEmailRegistered(email) {
+    const applicants = await fetchApplicants();
+    return applicants.some(a => a.email === email);
+  },
+
+  async sendMagicLink(email) {
+    const actionCodeSettings = {
+      url: "https://YOUR_DOMAIN.vercel.app/magic-login",
+      handleCodeInApp: true
+    }
+
+    await sendSignInLinkToEmail(auth, email, actionCodeSettings);
+
+    // Simpan email ke localStorage
+    window.localStorage.setItem("emailForSignIn", email);
+
+    console.log("Magic Link dikirim ke:", email);
+  },
+
+  async completeMagicLogin() {
+    if (isSignInWithEmailLink(auth, window.location.href)) {
+
+      let email = window.localStorage.getItem("emailForSignIn");
+
+      if (!email) {
+        email = window.prompt("Masukkan email Anda untuk konfirmasi");
+      }
+
+      const result = await signInWithEmailLink(auth, email, window.location.href);
+
+      console.log("Login berhasil:", result.user);
+
+      window.localStorage.removeItem("emailForSignIn");
+    }
+  },
+
+  async registerApplicantMagicLink(userData){
+    const exists = await isEmailRegistered(email);
+
+    if (exists) {
+      console.log("Email sudah terdaftar → Tidak kirim magic link");
+      return false;
+    }
+
+    await sendMagicLink(email);
+    console.log("Magic link dikirim karena email belum terdaftar");
+    return true;
+  },
+
+  async loginApplicantMagicLink(userData){
+    const exists = await isEmailRegistered(userData);
+
+    if (!exists) {
+      console.log("Email belum terdaftar → Tidak bisa login");
+      return false;
+    }
+
+    await sendMagicLink(userData);
+    console.log("Magic link dikirim untuk login");
+    return true;
+  },
+
+  async loginRecruiterMagicLink(credentials){
+    const exists = await isEmailRegistered(credentials);
+
+    if (!exists) {
+      console.log("Email belum terdaftar → Tidak bisa login");
+      return false;
+    }
+
+    await sendMagicLink(credentials);
+    console.log("Magic link dikirim untuk login");
+    return true;
+  },
 
   async registerApplicant(userData){
     try{
@@ -108,10 +182,10 @@ export const authAPI = {
 
   async loginApplicant(credentials){
     try{
-      const applicants = await fetchRecruiters();
+      const applicants = await fetchApplicants();
       if (!applicants) return null;
       
-      const matched = Object.values(recruiters).find(
+      const matched = Object.values(applicants).find(
         (r) => 
           r.email === credentials.email
       );
@@ -168,8 +242,10 @@ export const authAPI = {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
 
+      console.log("Google Email:", user.email);
+
       const usersCol = collection(db, `users/roles/${role}`);
-      const q = query(usersCol);
+      const q = query(usersCol, where("email", "==", user.email));
       const querySnapshot = await getDocs(q);
 
       if (!querySnapshot.empty) {
@@ -187,21 +263,39 @@ export const authAPI = {
 
   async registerGoogle(role) {
     try {
+      provider.addScope("email");
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
 
-      const usersCol = collection(db, `users/roles/${role}`);
-      const q = query(usersCol);
-      const querySnapshot = await getDocs(q);
+      await user.reload();
 
-      if (!querySnapshot.empty) {
-        console.log("⚠️ Email sudah terdaftar:", user.email);
-        return { success: false, message: "Email sudah terdaftar" };
+      const email =
+        user.email ||
+        user.providerData?.[0]?.email ||
+        result._tokenResponse?.email;
+
+      console.log("Google Email:", email);
+
+      if (!email) {
+        console.error("⚠ Tidak dapat mengambil email dari Google");
+        return { success: false, message: "Email Google tidak terbaca" };
       }
 
-      await setDoc(doc(usersCol));
+      const usersCol = collection(db, `users/roles/${role}`);
+      //const q = query(usersCol);
+      //const querySnapshot = await getDocs(q);
 
-      console.log("✅ Registrasi Google berhasil:", user.email);
+      /*
+      if (!querySnapshot.empty) {
+        console.log("⚠️ Email sudah terdaftar:", email);
+        return { success: false, message: "Email sudah terdaftar" };
+      }*/
+
+      await addDoc(usersCol, {
+        email: email,
+      });
+
+      console.log("✅ Registrasi Google berhasil:", email);
       return { success: true, user };
     } catch (error) {
       console.error("🔥 Register Google gagal:", error.message);
@@ -260,6 +354,9 @@ export const candidatesAPI = {
         data: [
           {
             id: candId,
+            jobid: candidateData.jobIndex,
+            job: candidateData.jobTitle,
+            slug: candidateData.jobSlug,
             attributes: [
               { key: "full_name", label: "Full Name", value: candidateData.fullName, order: 1 },
               { key: "email", label: "Email", value: candidateData.email, order: 2 },
@@ -283,6 +380,38 @@ export const candidatesAPI = {
     }
   },
 
+  async fetchPersonalData(email, jobId){
+    try{
+      const candidatesCol = collection(db, "candidates");
+      const snapshot = await getDocs(candidatesCol);
+
+      const allCandidates = [];
+
+      snapshot.forEach((docSnap) => {
+        const docData = docSnap.data();
+        if(docData && Array.isArray(docData.data)){
+          allCandidates.push(...docData.data);
+        }
+      })
+
+      const matched = allCandidates.filter((cand) => {
+        const emailAttr = cand.attributes.find(attr => attr.key === "email");
+        return (
+          emailAttr &&
+          emailAttr.value === targetEmail &&
+          cand.jobid === jobId  // <= cek jobId di sini!
+        );
+      });
+
+      console.log("Hasil filter email:", JSON.stringify(matched, null, 2));
+      return matched;
+    }catch(error){
+      console.error("Failed to fetch applicants:", error);
+      return [];
+    } 
+  },
+
+  /*
   async updatePersonalData(){
 
   },
@@ -290,7 +419,7 @@ export const candidatesAPI = {
   async deletePersonalData(){
 
   }
-
+  */
 }
 
 
@@ -376,7 +505,7 @@ export const jobListAPI = {
         }
       });
 
-      console.log("Data job list berhasil diambil:", allJobs);
+      //console.log("Data job list berhasil diambil:", allJobs);
       return allJobs;
 
     } catch (error) {
@@ -390,3 +519,4 @@ export const jobListAPI = {
 //fetchApplicants();
 //fetchRecruiters();
 
+// fetchPersonalData();

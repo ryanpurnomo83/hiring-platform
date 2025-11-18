@@ -67,13 +67,30 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return user;
   };
 
+  const loginMagicLink = async (email: string): Promise<boolean> => {
+    try {
+      const data = await authAPI.loginRecruiter({ email });
+      if (data) {
+        setUser(data);
+        console.log("Logged in user:", data);
+        return true;
+      } else {
+        alert("Invalid email or password");
+        return false;
+      }
+    } catch (error) {
+      console.error("Login failed:", error);
+      return false;
+    }
+  };
+
   const logoutUser = () => {
     setUser(null);
     console.log("User logged out");
   };
 
   return (
-    <AuthContext.Provider value={{ user, registerApplicant, loginApplicant, loginRecruiter, registerGoogle, loginGoogle, logoutUser }}>
+    <AuthContext.Provider value={{ user, registerApplicant, loginApplicant, loginRecruiter, registerGoogle, loginGoogle, loginMagicLink, logoutUser }}>
       {children}
     </AuthContext.Provider>
   );

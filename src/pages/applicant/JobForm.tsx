@@ -1,14 +1,17 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import ProfilePicture from "../../../public/Profile-Picture.png";
+import { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { candidatesAPI } from "../../services/APIServices";
-//import { CandidatesInterface } from "../../interfaces/Candidate";
-import MediaForm from "../applicant/MediaForm";
 
+import MediaForm from "../applicant/MediaForm";
+import ProfilePicture from "../../../public/Profile-Picture.png";
+
+import { HiOutlineUpload } from "react-icons/hi";
 import { IoArrowBackOutline } from "react-icons/io5";
 
 export default function JobForm() {
-  const navigate = useNavigate();
+  const navigate = useNavigate(); 
+  const location = useLocation();
+  const selectedJob = location.state?.selectedJob;
   const [showMediaForm, setShowMediaForm] = useState(false);
 
   const [fullName, setFullName] = useState("");
@@ -19,12 +22,13 @@ export default function JobForm() {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [email, setEmail] = useState("");
   const [linkedin, setLinkedin] = useState("");
+  const [cities, setCities] = useState<string[]>([]);
+  const [loadingCities, setLoadingCities] = useState(false);
 
   const [profileImage, setProfileImage] = useState<string | null>(
     localStorage.getItem("capturedImage") || null
   );
 
-    // Callback dari MediaForm
   const handleSubmitCapture = (img: string) => {
     setProfileImage(img);
   };
@@ -38,6 +42,54 @@ export default function JobForm() {
   };
 
   //const [candidates, setCandidates] = useState<CandidatesInterface>({ data: [] });
+
+  type Province = {
+    id: number;
+    name: string;
+  };
+
+  type City = {
+    id: number;
+    province_id: string;
+    name: string;
+  };
+
+  const fetchCities = async () => {
+    setLoadingCities(true);
+
+    try {
+      // 1. Ambil semua provinsi
+      const provincesRes = await fetch(
+        "https://www.emsifa.com/api-wilayah-indonesia/api/provinces.json"
+      );
+      const provinces: Province[] = await provincesRes.json();
+
+      let allCities: City[] = [];
+
+      // 2. Loop setiap provinsi untuk ambil semua kota
+      for (const prov of provinces) {
+        const citiesRes = await fetch(
+          `https://www.emsifa.com/api-wilayah-indonesia/api/regencies/${prov.id}.json`
+        );
+
+        const regencies: City[] = await citiesRes.json();
+
+        // Gabungkan semua kota dari setiap provinsi
+        allCities = [...allCities, ...regencies];
+      }
+
+      // 3. Masukkan hanya nama kotanya ke state
+      setCities(allCities.map((c) => c.name));
+    } catch (err) {
+      console.error("Failed to fetch cities", err);
+    }
+
+    setLoadingCities(false);
+  };
+
+  useEffect(() => {
+    fetchCities();
+  }, []);
 
   const handleSubmit = async() => {
     if (!fullName || !email) {
@@ -54,6 +106,9 @@ export default function JobForm() {
       email,
       linkedin,
       photo: profileImage || "",
+      jobIndex: selectedJob?.id || "",
+      jobTitle: selectedJob?.title || "",
+      jobSlug: selectedJob?.slug || "",
     };
 
     const response = await candidatesAPI.addPersonalData(candidateData); 
@@ -85,7 +140,7 @@ export default function JobForm() {
                 className="border border-gray-300 bg-white shadow-md p-2 hover:bg-gray-100 active:shadow-inner rounded-xl transition">
               <IoArrowBackOutline />
             </button>
-            <h2 className="font-semibold text-lg">Apply Front End at Rakamin</h2>
+            <h2 className="font-semibold text-lg">{`Apply as ${selectedJob?.title}`}</h2>
           </div>
 
           <hr className="mb-4" />
@@ -99,16 +154,17 @@ export default function JobForm() {
           )}
           {/* <img src={ProfilePicture} style={{ width: "20%" }} className="mb-2" /> */}
           <button
-            className="border p-2 mb-4"
+            className="flex items-center justify-center gap-2 w-[160px] border border-[#EDEDED] rounded-lg shadow-md font-semibold p-2 mb-4"
             onClick={() => setShowMediaForm(true)}
           >
-            Take a picture
+            <HiOutlineUpload className="text-xl"/>
+            Take a Picture
           </button>
 
           <label className="font-medium">Full name</label>
           <input
             type="text"
-            className="border border-gray-300 rounded p-2 mb-4"
+            className="border border-gray-300 rounded-lg p-2 mb-4"
             placeholder="Full Name"
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
@@ -117,7 +173,7 @@ export default function JobForm() {
           <label className="font-medium">Date of Birth</label>
           <input
             type="date"
-            className="border border-gray-300 rounded p-2 mb-4"
+            className="border border-gray-300 rounded-lg p-2 mb-4"
             value={dateOfBirth}
             onChange={(e) => setDateOfBirth(e.target.value)}
           />
@@ -148,19 +204,28 @@ export default function JobForm() {
 
           <label className="font-medium">Domicile</label>
           <select
-            className="border rounded p-2 mb-4"
+            className="border rounded-lg p-2 mb-4"
             value={domicile}
             onChange={(e) => setDomicile(e.target.value)}
           >
             <option value="">Choose your domicile</option>
-            <option value="Jakarta">Jakarta</option>
-            <option value="Semarang">Semarang</option>
+            {loadingCities ? (
+              <option>Loading cities...</option>
+            ) : (
+              cities.map((city) => (
+                <option key={city} value={city}>
+                  {city}
+                </option>
+              ))
+            )}
+            {/* <option value="Jakarta">Jakarta</option>
+            <option value="Semarang">Semarang</option> */}
           </select>
 
           <label className="font-medium">Phone Number</label>
-          <div className="flex gap-2 mb-4">
+          <div className="flex mb-4 border rounded-lg">
             <select
-              className="border rounded p-2"
+              className="p-2"
               value={phonePrefix}
               onChange={(e) => setPhonePrefix(e.target.value)}
             >
@@ -168,10 +233,14 @@ export default function JobForm() {
               <option value="+62">+62</option>
               <option value="+61">+61</option>
             </select>
+            <div className="border-l" />
+            <p className="flex items-center pl-2">
+              +62
+            </p>
             <input
               type="tel"
               placeholder="81xxxxxx"
-              className="border rounded p-2 flex-1"
+              className="ml-2 p-2 flex-1"
               value={phoneNumber}
               onChange={(e) => setPhoneNumber(e.target.value)}
             />
@@ -180,7 +249,7 @@ export default function JobForm() {
           <label>Email</label>
           <input
             type="email"
-            className="border border-gray-300 rounded p-2 mb-4"
+            className="border border-gray-300 rounded-lg p-2 mb-4"
             placeholder="Enter your email address"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -189,14 +258,14 @@ export default function JobForm() {
           <label>Link Linkedin</label>
           <input
             type="text"
-            className="border border-gray-300 rounded p-2 mb-4"
+            className="border border-gray-300 rounded-lg p-2 mb-4"
             placeholder="https://linkedin.com/in/username"
             value={linkedin}
             onChange={(e) => setLinkedin(e.target.value)}
           />
 
           <button
-            className="bg-teal-600 hover:bg-yellow-500 text-white font-medium px-5 py-2 rounded-md transition"
+            className="bg-teal-600 hover:bg-yellow-500 text-white font-medium px-5 py-2 rounded-lg transition"
             onClick={handleSubmit}
           >
             Submit

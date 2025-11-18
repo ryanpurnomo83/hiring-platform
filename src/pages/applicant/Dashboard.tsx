@@ -1,19 +1,21 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import rakaminLogoOnly from "../../../public/rakamin-logo-only.png";
-import { TiLocationOutline } from "react-icons/ti";
-import { LiaMoneyBillSolid } from "react-icons/lia";
 
 import { jobListAPI } from "../../services/APIServices";
+// import { candidatesAPI } from "../../services/APIServices";
 import type { JobListItem } from "../../interfaces/JobList";
 
+import rakaminLogoOnly from "../../../public/rakamin-logo-only.png";
 import LoadingSpinner from "../../components/loadingspinner";
+import { TiLocationOutline } from "react-icons/ti";
+import { LiaMoneyBillSolid } from "react-icons/lia";
 
 export default function Dashboard() {
     const navigate = useNavigate();
     const [jobList, setJobList] =  useState<JobListItem[]>([]);
     const [selectedJob, setSelectedJob] = useState<JobListItem | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    //const [isApplied, setIsApplied] = useState("");
 
     useEffect(() => {
         const fetchJobs = async () => {
@@ -27,6 +29,11 @@ export default function Dashboard() {
           setIsLoading(false);
         };
         fetchJobs();
+
+        /*
+        const fetchCandidates = async() => {
+          const candidates = await candidatesAPI.fetchPersonalData();
+        }*/
     }, []);
     
     
@@ -37,6 +44,14 @@ export default function Dashboard() {
       .map(item => item.replace(/^-/, "").trim())
       .filter(item => item.length > 0) ?? [];
 
+    const formatRupiah = (value: number | null | undefined) => {
+      if(value === undefined || value === null) return "-";
+      return new Intl.NumberFormat("id-ID", {
+        style: "currency",
+        currency: "IDR",
+        minimumFractionDigits: 0,
+      }).format(value);
+    }
 
   return (
     <>
@@ -46,11 +61,11 @@ export default function Dashboard() {
         <h1 className="font-bold text-black text-xl">Loading</h1>
       </div>
     ) : (
-      <div className="flex gap-8 justify-center items-start p-6">
+      <div className="flex flex-col lg:flex-row gap-6 justify-center items-start p-4 lg:p-6 w-full">
         {/* Job Card List Wrapper */}
         <div className="w-full max-w-md rounded-lg  h-[500px] overflow-y-scroll">
 
-          {/* 🔴 Empty State */}
+          {/*  Empty State */}
           {!showJobList && (
             <div className="text-center">
               <h1 className="text-xl font-semibold mb-2">
@@ -69,8 +84,16 @@ export default function Dashboard() {
             {jobList.map((job, index) => (
             <div
               key={index} 
-              onClick={() => setSelectedJob(job)}
-              className={`border p-4 rounded-lg mb-4 cursor-pointer transition ${selectedJob?.id === job.id ? "border-blue-500 shadow-md bg-blue-50" : "bg-white"}`}>
+              onClick={() => {
+                if (window.innerWidth < 1024) {       
+                  navigate(`/applicant/jobdetail/${job.id}`, {
+                    state: { selectedJob: job }
+                  });
+                  return;
+                }
+                setSelectedJob(job)
+              }}
+              className={`border p-4 rounded-lg mb-4 cursor-pointer transition ${selectedJob?.id === job.id ? "border-[#01959F] shadow-md bg-[#F3FBFC]" : "bg-white"}`}>
               <div className="flex items-center gap-3 mb-2">
                 <img
                   src={rakaminLogoOnly}
@@ -91,9 +114,8 @@ export default function Dashboard() {
                 <p className="flex items-center gap-2">
                   <LiaMoneyBillSolid className="text-gray-500" />
                   {job.salary_range?.display_text ||
-                        `${job.salary_range?.min ?? "-"} - ${
-                          job.salary_range?.max ?? "-"
-                  } ${job.salary_range?.currency ?? ""}`}
+                        `${formatRupiah(job.salary_range?.min)} - 
+                         ${formatRupiah(job.salary_range?.max)} `}
                 </p>
               </div>
             </div>
@@ -105,13 +127,13 @@ export default function Dashboard() {
 
         {/* Job Description */}
         {selectedJob && (
-          <div className="border p-6 w-full max-w-3xl rounded-lg shadow-sm bg-white">
+          <div className="hidden lg:block border p-6 w-full max-w-3xl rounded-lg shadow-sm bg-white">
             <div className="flex items-start justify-between mb-3">
               <div className="flex items-center gap-3">
                 <img
                   src={rakaminLogoOnly}
                   alt="Rakamin Logo"
-                  className="w-12 h-12 object-contain"
+                  className="border border-[#EDEDED] rounded-lg w-12 h-12 object-contain"
                 />
                 <div>
                   <span className="inline-block bg-green-500 text-white text-xs px-2 py-1 rounded-md mb-1">
@@ -124,7 +146,9 @@ export default function Dashboard() {
                 </div>
               </div>
               <button
-                  onClick={() => {navigate("/applicant/jobform");}} 
+                  onClick={() => {navigate("/applicant/jobform",{
+                    state: { selectedJob }
+                  });}} 
                   className="bg-yellow-400 hover:bg-yellow-500 text-white text-sm font-medium px-3 py-1 rounded-md transition">
                 Apply
               </button>

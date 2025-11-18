@@ -16,13 +16,13 @@ export default function LoginSelectionPage() {
         <div className="flex flex-col gap-4 w-60">
           <Link
             to="/login/applicant"
-            className="bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
+            className="bg-[#4DB5BC] text-white py-2 rounded-lg hover:bg-[#01959F]"
           >
             Login as Applicant
           </Link>
           <Link
             to="/login/recruiter"
-            className="bg-green-600 text-white py-2 rounded hover:bg-green-700"
+            className="bg-[#F8A92F] text-white py-2 rounded-lg hover:bg-[#FA9810]"
           >
             Login as Recruiter
           </Link>

@@ -17,6 +17,7 @@ export default function Dashboard() {
   const [jobList, setJobList] =  useState<JobListItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
 
   // ✅ Ambil data dari Firestore saat komponen pertama kali dimuat
   useEffect(() => {
@@ -30,15 +31,26 @@ export default function Dashboard() {
     fetchJobs();
   }, []);
 
-  // ✅ Jika ingin refresh manual (misal dari tombol)
-  const handleFetchJobList = async () => {
-    setLoading(true);
-    const jobs = await jobListAPI.fetchJobList();
-    setJobList(jobs);
-    setLoading(false);
-  };
-
   const showJobList = jobList.length > 0;
+
+  const filteredJobs = jobList.filter((job) => {
+    const keyword = searchTerm.toLowerCase();
+
+    return (
+      job.title?.toLowerCase().includes(keyword) ||
+      job.slug?.toLowerCase().includes(keyword) ||
+      job.status?.toLowerCase().includes(keyword)
+    );
+  });
+
+  const formatRupiah = (value: number | null | undefined) => {
+    if (value === undefined || value === null) return "-";
+    return new Intl.NumberFormat("id-ID", {
+      style: "currency",
+      currency: "IDR",
+      minimumFractionDigits: 0,
+    }).format(value);
+  };
 
   return (
     <>
@@ -74,13 +86,15 @@ export default function Dashboard() {
         </div>
       ) : (
         <div className="scroll-blue justify-center bg-gray-50 p-6">
-        {/* 🔍 Search Bar */}
+        {/* Search Bar */}
 
             <div className="flex justify-between items-center items-start gap-10 w-full mb-1">
               <div className="relative w-full mb-1">
                 <input
                   type="search"
                   placeholder="Search by job details"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
                   className="border border-gray-300 rounded-md pl-3 pr-10 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
                 />
                 <CiSearch className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-xl" />
@@ -109,7 +123,7 @@ export default function Dashboard() {
               <div className="text-center mt-2 text-gray-600">Loading...</div>
             )}
 
-            {/* 🔴 Empty State */}
+            {/* Empty State */}
             {!loading && !showJobList && (
               <div className="text-center">
                 <img
@@ -133,24 +147,26 @@ export default function Dashboard() {
               </div>
             )}
 
-            {/* ✅ Filled State (ada data job) */}
+            {/* Filled State */}
             {!loading && showJobList && (
               <div className="max-w-6xl mt-1">
 
-                <div className="flex justify-between items-center mb-4">
-                  <button
-                    onClick={handleFetchJobList}
-                    className="text-sm text-blue-500 hover:underline"
-                  >
-                    Refresh
-                  </button>
-                </div>
-
                 <div className="space-y-4 overflow-y-auto h-[500px]">
-                  {jobList.map((job, index) => (
+                  {filteredJobs.map((job, index) => (
                     <div
                       key={index}
-                      className="border p-4 rounded-lg shadow-sm bg-white hover:shadow-md transition">
+                      className="border border-[#EDEDED] p-4 rounded-lg shadow-sm bg-white hover:shadow-lg transition">
+                      
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className="border bg-[#FFF9FA] rounded-lg pl-2 pr-2 pt-1 pb-1">
+                          {job.status}
+                        </div>
+
+                        <div className="border border-[#E0E0E0] pl-2 pr-2 pt-1 pb-1 rounded-md">
+                          started on 2 Oct 2025
+                        </div>
+                      </div>
+                      
                       <div className="flex items-center gap-3 mb-2">
                         <img
                           src={rakaminLogoOnly}
@@ -170,12 +186,12 @@ export default function Dashboard() {
                           <TiLocationOutline className="text-gray-500" />
                           Jakarta Selatan
                         </p>
+
                         <p className="flex items-center gap-2">
                           <LiaMoneyBillSolid className="text-gray-500" />
                           {job.salary_range?.display_text ||
-                            `${job.salary_range?.min ?? "-"} - ${
-                              job.salary_range?.max ?? "-"
-                            } ${job.salary_range?.currency ?? ""}`}
+                            `${formatRupiah(job.salary_range?.min)} -
+                             ${formatRupiah(job.salary_range?.max)} `}
                         </p>
                         {/*
                         <p className="text-gray-500 text-xs mt-1">

@@ -1,4 +1,69 @@
+import { useEffect, useState } from "react";
+
+type Row = {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  dob: string;
+  domicile: string;
+  gender: string;
+  linkedin: string;
+};
+
 export default function ManageJob() {
+  // contoh data — ganti ini dengan data nyata / fetch
+  const [rows, setRows] = useState<Row[]>([
+    {
+      id: "1",
+      name: "Nadia Putri",
+      email: "nadia.putri@example.com",
+      phone: "+62 812-1234-5678",
+      dob: "12/03/1998",
+      domicile: "Jakarta",
+      gender: "Female",
+      linkedin: "https://linkedin.com/in/nadiaputri",
+    },
+    {
+      id: "2",
+      name: "Budi Santoso",
+      email: "budi.s@example.com",
+      phone: "+62 812-2345-6789",
+      dob: "05/06/1995",
+      domicile: "Bandung",
+      gender: "Male",
+      linkedin: "https://linkedin.com/in/budisantoso",
+    },
+    // ... lebih banyak row
+  ]);
+
+  const [selectAll, setSelectAll] = useState(false);
+  const [rowSelections, setRowSelections] = useState<boolean[]>([]);
+
+  // Inisialisasi rowSelections saat rows berubah
+  useEffect(() => {
+    setRowSelections(rows.map(() => false));
+    setSelectAll(false);
+  }, [rows]);
+
+  // Toggle select all
+  const handleSelectAll = () => {
+    const newValue = !selectAll;
+    setSelectAll(newValue);
+    setRowSelections(rows.map(() => newValue));
+  };
+
+  // Toggle individual row (ubah hanya index tsb)
+  const handleRowSelect = (index: number) => {
+    setRowSelections((prev) => {
+      const updated = [...prev];
+      updated[index] = !updated[index];
+      // update header checkbox: true iff semua true
+      setSelectAll(updated.every(Boolean));
+      return updated;
+    });
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-10xl mx-auto bg-white rounded-lg shadow-md overflow-hidden">
@@ -17,6 +82,8 @@ export default function ManageJob() {
                   <input
                     type="checkbox"
                     className="w-4 h-4 accent-blue-500 cursor-pointer"
+                    checked={selectAll}
+                    onChange={handleSelectAll}
                   />
                 </th>
                 <th className="p-3 border-b border-gray-200">Nama Lengkap</th>
@@ -30,33 +97,36 @@ export default function ManageJob() {
             </thead>
 
             <tbody className="text-gray-700">
-              {/* Contoh row */}
-              <tr className="divide-x divide-gray-200 hover:bg-gray-50 transition">
-                <td className="p-3 border-b border-gray-100">
-                  <input
-                    type="checkbox"
-                    className="w-4 h-4 accent-blue-500 cursor-pointer"
-                  />
-                </td>
-                <td className="p-3 border-b border-gray-100">Nadia Putri</td>
-                <td className="p-3 border-b border-gray-100">
-                  nadia.putri@example.com
-                </td>
-                <td className="p-3 border-b border-gray-100">+62 812-1234-5678</td>
-                <td className="p-3 border-b border-gray-100">12/03/1998</td>
-                <td className="p-3 border-b border-gray-100">Jakarta</td>
-                <td className="p-3 border-b border-gray-100">Female</td>
-                <td className="p-3 border-b border-gray-100">
-                  <a
-                    href="https://linkedin.com/in/nadiaputri"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-500 hover:underline"
-                  >
-                    View Profile
-                  </a>
-                </td>
-              </tr>
+              {rows.map((row, index) => (
+                <tr key={row.id} className="divide-x divide-gray-200 hover:bg-gray-50 transition">
+                  <td className="p-3 border-b border-gray-100 text-center">
+                    <input
+                      type="checkbox"
+                      className="w-4 h-4 accent-blue-500 cursor-pointer"
+                      checked={!!rowSelections[index]}
+                      onChange={() => handleRowSelect(index)}
+                    />
+                  </td>
+
+                  <td className="p-3 border-b border-gray-100">{row.name}</td>
+                  <td className="p-3 border-b border-gray-100">{row.email}</td>
+                  <td className="p-3 border-b border-gray-100">{row.phone}</td>
+                  <td className="p-3 border-b border-gray-100">{row.dob}</td>
+                  <td className="p-3 border-b border-gray-100">{row.domicile}</td>
+                  <td className="p-3 border-b border-gray-100">{row.gender}</td>
+                  <td className="p-3 border-b border-gray-100">
+                    <a href={row.linkedin} target="_blank" rel="noreferrer" className="text-blue-500 hover:underline">
+                      View Profile
+                    </a>
+                  </td>
+                </tr>
+              ))}
+
+              {rows.length === 0 && (
+                <tr>
+                  <td colSpan={8} className="p-4 text-center text-gray-500">No data</td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
