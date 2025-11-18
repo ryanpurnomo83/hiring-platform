@@ -9,7 +9,7 @@ import rakaminLogo from '../../../../public/rakamin-logo.png';
 import googleLogo from '../../../../public/Google_Logo_2025.png';
 
 export default function ApplicantLogin() {
-  const { loginApplicant, loginGoogle, loginMagicLink } = useAuth();
+  const { loginApplicant, loginGoogle} = useAuth();
   const navigate = useNavigate();
 
   const [email, setEmail] = useState("");
@@ -48,6 +48,7 @@ export default function ApplicantLogin() {
     }
   };
 
+  /*
   const handleLoginMagicLink = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -58,7 +59,7 @@ export default function ApplicantLogin() {
     }else{
       alert("Email atau password salah.");
     }
-  }
+  }*/
 
   const showPasswordInput = () => {
     setShowPassword(true);

@@ -12,7 +12,7 @@ type Row = {
 };
 
 export default function ManageJob() {
-  // contoh data — ganti ini dengan data nyata / fetch
+ 
   const [rows, setRows] = useState<Row[]>([
     {
       id: "1",
@@ -56,12 +56,26 @@ export default function ManageJob() {
   // Toggle individual row (ubah hanya index tsb)
   const handleRowSelect = (index: number) => {
     setRowSelections((prev) => {
-      const updated = [...prev];
+      const updated = [...prev]; // jangan mutate langsung
       updated[index] = !updated[index];
-      // update header checkbox: true iff semua true
       setSelectAll(updated.every(Boolean));
       return updated;
     });
+  };
+
+  // Contoh: tambah row baru (immutable)
+  const handleAddRow = () => {
+    const newRow: Row = {
+      id: (rows.length + 1).toString(),
+      name: "New User",
+      email: "newuser@example.com",
+      phone: "+62 811-0000-0000",
+      dob: "01/01/2000",
+      domicile: "Jakarta",
+      gender: "Male",
+      linkedin: "https://linkedin.com/in/newuser",
+    };
+    setRows(prev => [...prev, newRow]); // immutable
   };
 
   return (
@@ -69,7 +83,10 @@ export default function ManageJob() {
       <div className="max-w-10xl mx-auto bg-white rounded-lg shadow-md overflow-hidden">
         <div className="p-4 border-b border-gray-200 flex justify-between items-center">
           <h2 className="text-xl font-semibold text-gray-800">Front End Developer</h2>
-          <button className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition">
+          <button
+            onClick={handleAddRow}
+            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition"
+          >
             + Add New
           </button>
         </div>
@@ -107,7 +124,6 @@ export default function ManageJob() {
                       onChange={() => handleRowSelect(index)}
                     />
                   </td>
-
                   <td className="p-3 border-b border-gray-100">{row.name}</td>
                   <td className="p-3 border-b border-gray-100">{row.email}</td>
                   <td className="p-3 border-b border-gray-100">{row.phone}</td>
@@ -115,7 +131,12 @@ export default function ManageJob() {
                   <td className="p-3 border-b border-gray-100">{row.domicile}</td>
                   <td className="p-3 border-b border-gray-100">{row.gender}</td>
                   <td className="p-3 border-b border-gray-100">
-                    <a href={row.linkedin} target="_blank" rel="noreferrer" className="text-blue-500 hover:underline">
+                    <a
+                      href={row.linkedin}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-blue-500 hover:underline"
+                    >
                       View Profile
                     </a>
                   </td>

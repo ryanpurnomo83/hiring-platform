@@ -13,8 +13,8 @@ export interface AuthContextType {
   loginRecruiter: (email: string, password: string) => Promise<boolean>;
   loginGoogle: (role: string) => Promise<User | null>;
   registerGoogle: (role: string) => Promise<User | null>;
-  loginMagicLink: (email: string) => Promise<boolean>;
-  registerMagicLink: (email: string) => Promise<boolean>;
+  // loginMagicLink: (email: string) => Promise<boolean>;
+  // registerMagicLink: (email: string) => Promise<boolean>;
   logoutUser: () => void;
 }
 

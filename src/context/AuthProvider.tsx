@@ -67,6 +67,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return user;
   };
 
+  /*
   const loginMagicLink = async (email: string): Promise<boolean> => {
     try {
       const data = await authAPI.loginRecruiter({ email });
@@ -83,6 +84,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       return false;
     }
   };
+  */
 
   const logoutUser = () => {
     setUser(null);
@@ -90,7 +92,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, registerApplicant, loginApplicant, loginRecruiter, registerGoogle, loginGoogle, loginMagicLink, logoutUser }}>
+    <AuthContext.Provider value={{ user, registerApplicant, loginApplicant, loginRecruiter, registerGoogle, loginGoogle, logoutUser }}>
       {children}
     </AuthContext.Provider>
   );
