@@ -250,11 +250,11 @@ export const authAPI = {
 
       if (!querySnapshot.empty) {
         console.log("Email sudah terdaftar");
-        return false;
+        return true;
       }
 
       console.log("Google Login Success:");
-      return true;
+      return false;
     }catch(error){
       console.error("Google Login Failed:", error);
       return null;
