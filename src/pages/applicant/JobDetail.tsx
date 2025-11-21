@@ -1,6 +1,5 @@
 // import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { jobListAPI } from "../../services/APIServices";
 import rakaminLogoOnly from "../../../public/rakamin-logo-only.png";
 
 export default function JobDetail() {
